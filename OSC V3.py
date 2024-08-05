@@ -1,9 +1,17 @@
 # Importaciones
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import filedialog, messagebox
 import pytesseract
 from PIL import Image
 import os
+
+# TODO: Optimizar el formateo de imagenes separando los procesos por pasos
+## While busca todas las imagenes y guarda una lista de tamaño N
+## El tamaño N se divide entre la cantidad de hilos
+## Si el modulo no es 0, el último hilo trabaja una imagen más
+
+# TODO: Aplicar un Split a los textos en japonés
+# TODO: Agregar un una ventana de traducción de textos de japonés a español
 
 # Función para configurar Tesseract
 def configurar_tesseract():
@@ -13,6 +21,9 @@ def configurar_tesseract():
 # Variables globales
 image_path = ''
 direccion_actual = os.getcwd()
+
+pantalla_ancho = 1100
+pantalla_alto = 650
 
 # Configuraciones de ejemplo
 configs = [r'--oem 3 --psm 5 -l jpn_vert']
@@ -193,7 +204,7 @@ def main():
     global root
     root = tk.Tk()
     root.title("OSC - Reconocimiento de Texto")
-    root.geometry("1200x800")
+    root.geometry(f"{pantalla_ancho}x{pantalla_alto}")
     configurar_tesseract()
     crear_instrucciones(root)
     crear_opciones(root)
