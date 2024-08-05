@@ -29,7 +29,7 @@ pantalla_alto = 650
 configs = [r'--oem 3 --psm 5 -l jpn_vert']
 
 # Función para procesar imagen con configuración personalizada
-def pyt_configurable(custom_config):
+def arrancar_texto_de_imagen(custom_config):
     try:
         image = Image.open(image_path)
         text = pytesseract.image_to_string(image, config=custom_config)
@@ -53,19 +53,22 @@ def cambiar_direccion():
     else:
         messagebox.showerror("Error", f"La carpeta {nueva_direccion} no existe.")
 
-# Función para dar nombre a la página
-def dar_nombre_pagina():
+def encontrar_imagenes_y_texto(nombre_pagina, formato):
     global image_path
-    nombre_pagina = nombre_entry.get().strip()
-    formato = formato_entry.get().strip() or 'png'
     indice = 1
     while True:
         nombre_archivo = f"{nombre_pagina}_{indice}.{formato}"
         image_path = os.path.join(direccion_actual, nombre_archivo)
-        if pyt_configurable(configs[0]):
+        if arrancar_texto_de_imagen(configs[0]):
             indice += 1
         else:
             break
+
+# Función para dar nombre a la página
+def dar_nombre_pagina():
+    nombre_pagina = nombre_entry.get().strip()
+    formato = formato_entry.get().strip() or 'png'
+    encontrar_imagenes_y_texto(nombre_pagina, formato)
 
 # Función para salir
 def salir():
