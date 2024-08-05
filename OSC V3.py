@@ -10,7 +10,6 @@ import os
 ## El tamaño N se divide entre la cantidad de hilos
 ## Si el modulo no es 0, el último hilo trabaja una imagen más
 
-# TODO: Aplicar un Split a los textos en japonés
 # TODO: Agregar un una ventana de traducción de textos de japonés a español
 
 # Función para configurar Tesseract
@@ -33,8 +32,9 @@ def arrancar_texto_de_imagen(custom_config):
     try:
         image = Image.open(image_path)
         text = pytesseract.image_to_string(image, config=custom_config)
-        texto = f"{'Archivo:':>10} {os.path.basename(image_path)}\n{text}\n\n"
-        texto_label.insert(tk.END, texto)
+        text = text.replace(" ", "").replace("\n", "||")
+        text = f"{'Archivo:':>10} {os.path.basename(image_path)}\n{text}\n\n"
+        texto_label.insert(tk.END, text)
         return True
     except FileNotFoundError as fnf_error:
         error_texto.insert(tk.END, f"Error: Archivo no encontrado - {fnf_error}\n")
