@@ -132,3 +132,64 @@ def siguiente_entry(current_entry, entry_indice, entry_precio, entry_dividendo, 
         entries[next_index].focus_set()
     except ValueError:
         pass
+
+def calcular_ganancia_potencial(entry_ganancia_potencial, tree):
+    try:
+        ganancia_potencial = float(entry_ganancia_potencial.get().strip())
+    except ValueError:
+        messagebox.showerror("Error", "El valor de ganancia potencial debe ser un número válido.")
+        return
+        
+    def _cargar(values,dividendo_anual_total,dividendo_por_pago,tree,item):
+        # Actualizar la columna "Potencial Ganancia" y la columna adicional en el Treeview
+        values[6] = str(dividendo_anual_total)
+        if len(values) > 7:
+            values[7] = str(dividendo_por_pago)
+        else:
+            values.append(str(dividendo_por_pago))
+        tree.item(item, values=tuple(values))
+
+    for item in tree.get_children():
+        values = list(tree.item(item, "values"))  # Convertir la tupla a lista
+        
+        # Asegurarse de que 'values' tenga al menos 7 elementos
+        while len(values) < 7:
+            values.append("0")  # O el valor que prefieras para inicializar
+
+        try:
+            indice_precio = float(values[1])  # Precio (suponiendo que está en la segunda columna)
+            indice_dividendos = float(values[2])  # Dividendo (suponiendo que está en la tercera columna)
+            indice_tipo = values[3]  # Tipo (suponiendo que está en la cuarta columna)
+        except ValueError:
+            # Si hay un error al convertir los valores, se establece "0" en las columnas correspondientes
+            _cargar(values,0,0,tree,item)
+            continue  # Saltar filas con valores no numéricos
+
+        # Calcular la cantidad de acciones que se pueden comprar
+        if indice_precio == 0:
+            _cargar(values,0,0,tree,item)
+            continue
+        cantidad_acciones = ganancia_potencial / indice_precio
+
+        # Determinar el tipo de pago por acción
+        try:
+            tipo = float(indice_tipo)
+        except ValueError:
+            tipo = 12  # Si indice_tipo no es convertible a float, asumir 12
+
+        if tipo == 0:
+            _cargar(values,0,0,tree,item)
+            continue  # Si el tipo es 0, no procesar esta fila
+
+        pagos_por_anno = 12 / tipo
+        # Calcular el dividendo anual por acción
+        dividendo_anual_por_accion = indice_dividendos * pagos_por_anno
+
+        # Calcular el dividendo anual total
+        dividendo_anual_total = cantidad_acciones * dividendo_anual_por_accion
+        dividendo_por_pago = cantidad_acciones * indice_dividendos
+
+        _cargar(values,dividendo_anual_total,dividendo_por_pago,tree,item)
+
+    # No es necesario guardar los cambios en el archivo si solo se actualiza la visualización
+    # Si necesitas guardar estos cambios en el archivo, debes añadir lógica adicional para hacerlo

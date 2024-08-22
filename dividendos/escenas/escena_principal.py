@@ -39,16 +39,29 @@ def _ganancia(frame):
     entry.grid(row=0, column=11, padx=5, pady=5)
     return entry
 
+def _ganancia_potencial(frame):
+    tk.Label(frame, text="Inversión de:").grid(row=1, column=4, padx=5, pady=5)
+    entry = tk.Entry(frame)
+    entry.grid(row=1, column=5, padx=5, pady=5)
+    return entry
+
 def _tree(frame):
-    tree = ttk.Treeview(frame, columns=("Indice", "Precio", "Dividendo", "Pagas", "Rendimiento", "Mi Ganancia"), show='headings', selectmode="browse")
+    tree = ttk.Treeview(frame, columns=("Indice", "Precio", "Dividendo", "Pagas", "Rendimiento", "Mi Ganancia", "Potencial Ganancia", "Ganancia Por Pago"), show='headings', selectmode="browse")
     tree.heading("Indice", text="Índice")
     tree.heading("Precio", text="Precio")
     tree.heading("Dividendo", text="Dividendo")
     tree.heading("Pagas", text="Pagas")
     tree.heading("Rendimiento", text="Rendimiento")
     tree.heading("Mi Ganancia", text="Mi Ganancia")
+    tree.heading("Potencial Ganancia", text="Potencial Ganancia")
+    tree.heading("Ganancia Por Pago", text="Ganancia Por Pago")
 
-    tree.grid(row=2, column=0, columnspan=12, pady=10, padx=5)
+    # Establecer el mismo ancho para todas las columnas
+    column_width = 150
+    for col in tree["columns"]:
+        tree.column(col, width=column_width)
+
+    tree.grid(row=2, column=0, columnspan=26, pady=10, padx=5)
     return tree
 
 def _botones(frame, tree, *entradas):
@@ -58,9 +71,23 @@ def _botones(frame, tree, *entradas):
     entry_tipo = entradas[3]
     entry_rendimiento = entradas[4]
     entry_ganancia = entradas[5]
-    tk.Button(frame, text="Agregar Índice", command=lambda: agregar_indice(entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia, tree)).grid(row=1, column=0, columnspan=6, pady=5, padx=5)
-    tk.Button(frame, text="Eliminar Índice", command=lambda: eliminar_indice(entry_indice, tree)).grid(row=1, column=6, columnspan=6, pady=5, padx=5)
-    tk.Button(frame, text="Sumar Ganancia", command=lambda: sumar_ganancia(entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia, tree)).grid(row=1, column=11, pady=5, padx=5)
+    entry_inversion_inicial = entradas[6]
+    tk.Button(frame, text="Agregar Índice", 
+        command=lambda: 
+        agregar_indice(entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia, tree)).grid(
+            row=1, column=0, columnspan=6, pady=5, padx=5)
+    tk.Button(frame, text="Calcular Ganancia", 
+        command=lambda: 
+        calcular_ganancia_potencial(entry_inversion_inicial, tree)).grid(
+            row=1, column=4, columnspan=6, pady=5, padx=5)
+    tk.Button(frame, text="Eliminar Índice", 
+        command=lambda: 
+        eliminar_indice(entry_indice, tree)).grid(
+            row=1, column=6, columnspan=6, pady=5, padx=5)
+    tk.Button(frame, text="Sumar Ganancia", 
+        command=lambda: 
+        sumar_ganancia(entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia, tree)).grid(
+            row=1, column=11, pady=5, padx=5)
    
 
 def _asignar_eventos(tree, *entradas):
@@ -102,12 +129,14 @@ def main():
     entry_tipo = _tipo(frame)
     entry_rendimiento = _rendimiento(frame)
     entry_ganancia = _ganancia(frame)
+    entry_inversion_inicial = _ganancia_potencial(frame)
 
     # Crear la tabla
     tree = _tree(frame)
 
     # Botones para agregar y eliminar
-    _botones(frame, tree, entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia)
+    _botones(frame, tree, entry_indice,
+        entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia, entry_inversion_inicial)
 
     # Bind para la tecla Enter en el entry_indice
     _asignar_eventos(tree, entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia)

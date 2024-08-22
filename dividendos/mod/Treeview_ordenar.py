@@ -11,7 +11,7 @@ class TreeviewSorter:
     def __init__(self, tree):
         self.tree = tree
         self.column = None
-        self.reverse = False
+        self.reverse = True
 
         # Configurar el evento de clic en el encabezado
         for col in tree["columns"]:
@@ -23,20 +23,27 @@ class TreeviewSorter:
             self.reverse = not self.reverse
         else:
             self.column = column
-            self.reverse = False
+            self.reverse = True
 
         # Obtener los elementos del Treeview
         items = [(self.tree.item(item)["values"], item) for item in self.tree.get_children()]
-        
+
         # Ordenar basándose en la columna actual
         def sort_key(item):
-            value = item[0][self.tree["columns"].index(column)]
             try:
-                # Convertir a flotante si es posible
-                return (float(value), value)
-            except ValueError:
-                # Mantener como cadena si no se puede convertir a flotante
-                return (float('inf'), value)
+                col_index = self.tree["columns"].index(column)
+                if col_index >= len(item[0]):
+                    raise IndexError("Columna index out of range")  # Manejo explícito de índice fuera de rango
+                value = item[0][col_index]
+                try:
+                    # Convertir a flotante si es posible
+                    return (float(value), value)
+                except ValueError:
+                    # Mantener como cadena si no se puede convertir a flotante
+                    return (float('inf'), value)
+            except (IndexError, ValueError) as e:
+                print(f"Error: {e}")  # Depuración
+                return (float('inf'), '')
 
         items.sort(key=sort_key, reverse=self.reverse)
 
