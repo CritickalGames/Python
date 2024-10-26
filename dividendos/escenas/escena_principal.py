@@ -8,50 +8,19 @@ from tkinter import ttk
 from mod.mod_funciones import *  # Alternativamente, puedes volver a llamar las funciones de manera individual
 from mod.Treeview_ordenar import TreeviewSorter
 
-def _indice(frame):
-    tk.Label(frame, text="Índice:").grid(row=0, column=0, padx=5, pady=5)
+def _label_y_entry(frame, nombre="", L_row=0, L_col=0, E_row=0, E_col=0, Lx=5,Ly=5, Ex=5,Ey=5):
+    tk.Label(frame, text=nombre).grid(row=L_row, column=L_col, padx=Lx, pady=Ly)
     entry = tk.Entry(frame)
-    entry.grid(row=0, column=1, padx=5, pady=5)
+    entry.grid(row=E_row, column=E_col, padx=Ex, pady=Ey)
     return entry
-def _precio(frame):
-    tk.Label(frame, text="Precio:").grid(row=0, column=2, padx=5, pady=5)
-    entry = tk.Entry(frame)
-    entry.grid(row=0, column=3, padx=5, pady=5)
-    return entry
-def _dividendos(frame):
-    tk.Label(frame, text="Dividendo:").grid(row=0, column=4, padx=5, pady=5)
-    entry = tk.Entry(frame)
-    entry.grid(row=0, column=5, padx=5, pady=5)
-    return entry
-def _tipo(frame):
-    tk.Label(frame, text="Tipo:").grid(row=0, column=6, padx=5, pady=5)
-    entry = tk.Entry(frame)
-    entry.grid(row=0, column=7, padx=5, pady=5)
-    return entry
-def _rendimiento(frame):
-    tk.Label(frame, text="Rendimiento:").grid(row=0, column=8, padx=5, pady=5)
-    entry = tk.Entry(frame)
-    entry.grid(row=0, column=9, padx=5, pady=5)
-    return entry
-def _ganancia(frame):
-    tk.Label(frame, text="Mi Ganancia:").grid(row=0, column=10, padx=5, pady=5)
-    entry = tk.Entry(frame)
-    entry.grid(row=0, column=11, padx=5, pady=5)
-    return entry
-
-def _ganancia_potencial(frame):
-    tk.Label(frame, text="Inversión de:").grid(row=1, column=4, padx=5, pady=5)
-    entry = tk.Entry(frame)
-    entry.grid(row=1, column=5, padx=5, pady=5)
-    return entry
-
 def _tree(frame):
-    tree = ttk.Treeview(frame, columns=("Indice", "Precio", "Dividendo", "Pagas", "Rendimiento", "Mi Ganancia", "Potencial Ganancia", "Ganancia Por Pago"), show='headings', selectmode="browse")
+    tree = ttk.Treeview(frame, columns=("Indice", "Precio", "Dividendo", "Pagas", "Rendimiento", "Mi inversión", "Mi Ganancia", "Potencial Ganancia", "Ganancia Por Pago"), show='headings', selectmode="browse")
     tree.heading("Indice", text="Índice")
     tree.heading("Precio", text="Precio")
     tree.heading("Dividendo", text="Dividendo")
     tree.heading("Pagas", text="Pagas")
     tree.heading("Rendimiento", text="Rendimiento")
+    tree.heading("Mi inversión", text="Mi inversión")
     tree.heading("Mi Ganancia", text="Mi Ganancia")
     tree.heading("Potencial Ganancia", text="Potencial Ganancia")
     tree.heading("Ganancia Por Pago", text="Ganancia Por Pago")
@@ -63,46 +32,34 @@ def _tree(frame):
 
     tree.grid(row=2, column=0, columnspan=26, pady=10, padx=5)
     return tree
+def _botones(frame, tree, entradas, entry_inversion_inicial):
 
-def _botones(frame, tree, *entradas):
-    entry_indice = entradas[0]
-    entry_precio = entradas[1]
-    entry_dividendo = entradas[2]
-    entry_tipo = entradas[3]
-    entry_rendimiento = entradas[4]
-    entry_ganancia = entradas[5]
-    entry_inversion_inicial = entradas[6]
     tk.Button(frame, text="Agregar Índice", 
         command=lambda: 
-        agregar_indice(entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia, tree)).grid(
-            row=1, column=0, columnspan=6, pady=5, padx=5)
+        agregar_indice(entradas, tree)).grid(row=1, column=3, columnspan=1, pady=5, padx=5)
     tk.Button(frame, text="Calcular Ganancia", 
         command=lambda: 
-        calcular_ganancia_potencial(entry_inversion_inicial, tree)).grid(
-            row=1, column=4, columnspan=6, pady=5, padx=5)
+        calcular_ganancia_potencial(entry_inversion_inicial, tree)).grid(row=1, column=4, columnspan=6, pady=5, padx=5)
     tk.Button(frame, text="Eliminar Índice", 
         command=lambda: 
-        eliminar_indice(entry_indice, tree)).grid(
-            row=1, column=6, columnspan=6, pady=5, padx=5)
+        eliminar_indice(entradas[0], tree)).grid(row=1, column=6, columnspan=6, pady=5, padx=5)
     tk.Button(frame, text="Sumar Ganancia", 
         command=lambda: 
-        sumar_ganancia(entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia, tree)).grid(
-            row=1, column=11, pady=5, padx=5)
-   
+        sumar_ganancia(entradas, tree)).grid(row=1, column=11, pady=5, padx=5)
 
-def _asignar_eventos(tree, *entradas):
+def _asignar_eventos(tree, entradas):
     entry_indice = entradas[0]
     entry_precio = entradas[1]
     entry_dividendo = entradas[2]
     entry_tipo = entradas[3]
     entry_rendimiento = entradas[4]
-    entry_ganancia = entradas[5]
+    entry_ganancia = entradas[6]
     def on_siguiente_entry(event):
-        siguiente_entry(event.widget, entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia)
+        siguiente_entry(event.widget, entradas)
     def on_agregar_indice(event):
-        agregar_indice(entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia, tree)
+        agregar_indice(entradas, tree)
     def on_sumar_ganancia(event):
-        sumar_ganancia(entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia, tree)
+        sumar_ganancia(entradas, tree)
 
     entry_indice.bind("<Return>", on_siguiente_entry)
     entry_precio.bind("<Return>", on_siguiente_entry)
@@ -122,24 +79,29 @@ def main():
     frame.grid(sticky="nsew")
 
     # Input para el índice
-    entry_indice = _indice(frame)
+    entry_indice = _label_y_entry(frame, "Índice:", 0, 0, 0, 1)
     # Inputs para los datos del índice en una fila
-    entry_precio = _precio(frame)
-    entry_dividendo = _dividendos(frame)
-    entry_tipo = _tipo(frame)
-    entry_rendimiento = _rendimiento(frame)
-    entry_ganancia = _ganancia(frame)
-    entry_inversion_inicial = _ganancia_potencial(frame)
+    entry_precio = _label_y_entry(frame,"Precio:", 0, 2, 0, 3)
+    entry_dividendo = _label_y_entry(frame,"Dividendo:", 0, 4, 0, 5)
+    entry_tipo = _label_y_entry(frame,"Tipo:", 0, 6, 0, 7)
+    entry_rendimiento = _label_y_entry(frame,"Rendimiento:", 0, 8, 0, 9)
+    entry_mi_inversion = _label_y_entry(frame,"Mi inversión:", 1, 1, 1, 2)
+    entry_ganancia = _label_y_entry(frame,"Mi Ganancia:", 0, 10, 0, 11)
+
+    entry_inversion_inicial = _label_y_entry(frame,"Inversión de:", 1, 4, 1, 5)
+
+    entradas = [
+        entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_mi_inversion, entry_ganancia
+    ]
 
     # Crear la tabla
     tree = _tree(frame)
 
     # Botones para agregar y eliminar
-    _botones(frame, tree, entry_indice,
-        entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia, entry_inversion_inicial)
+    _botones(frame, tree, entradas, entry_inversion_inicial)
 
     # Bind para la tecla Enter en el entry_indice
-    _asignar_eventos(tree, entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia)
+    _asignar_eventos(tree, entradas)
 
     # Configurar el sorter
     sorter = TreeviewSorter(tree)

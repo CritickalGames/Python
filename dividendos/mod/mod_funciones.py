@@ -17,7 +17,7 @@ def _leer_indices():
         pass
     return indices
 
-def _limpiar_entradas(*entries):
+def _limpiar_entradas(entries):
     for entry in entries:
         entry.delete(0, tk.END)
 
@@ -54,7 +54,15 @@ def actualizar_tabla(tree):
         tree.insert('', 'end', values=(indice, *valores), tags=(indice))
     _colorear(indices, tree)
 
-def agregar_indice(entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia, tree):
+def agregar_indice(entradas, tree):
+    entry_indice = entradas[0]
+    entry_precio = entradas[1]
+    entry_dividendo = entradas[2]
+    entry_tipo = entradas[3]
+    entry_rendimiento = entradas[4]
+    entry_mi_inversion = entradas[5]
+    entry_ganancia = entradas[6]
+
     indice = _convertir_a_mayusculas(entry_indice.get().strip())
     if not indice:
         messagebox.showerror("Error", "El campo de índice no puede estar vacío.")
@@ -66,23 +74,25 @@ def agregar_indice(entry_indice, entry_precio, entry_dividendo, entry_tipo, entr
     dividendo = entry_dividendo.get().strip()
     tipo = _convertir_a_mayusculas(entry_tipo.get().strip())
     rendimiento = entry_rendimiento.get().strip()
-    ganancia = entry_ganancia.get().strip() if entry_ganancia.get().strip() else "0"
+    inversion = entry_mi_inversion.get().strip()
+    ganancia = entry_ganancia.get().strip()
 
-    valores = indices.get(indice, [""]*5)
+    valores = indices.get(indice, [""]*6)
 
     # Actualiza los valores solo si se ha introducido un nuevo valor
     valores[0] = precio if precio else valores[0]
     valores[1] = dividendo if dividendo else valores[1]
     valores[2] = tipo if tipo else valores[2]
     valores[3] = rendimiento if rendimiento else valores[3]
-    valores[4] = ganancia if ganancia else valores[4]
+    valores[4] = inversion if inversion else valores[4]
+    valores[5] = ganancia if ganancia else valores[5]
 
     indices[indice] = valores
 
     _guardar_indices(indices)
     _ordenar_indices()
     actualizar_tabla(tree)
-    _limpiar_entradas(entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia)
+    _limpiar_entradas(entradas)
 
 def eliminar_indice(entry_indice, tree):
     indice = _convertir_a_mayusculas(entry_indice.get().strip())
@@ -100,7 +110,9 @@ def eliminar_indice(entry_indice, tree):
     else:
         messagebox.showerror("Error", f"El índice '{indice}' no existe.")
 
-def sumar_ganancia(entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia, tree):
+def sumar_ganancia(entradas, tree):
+    entry_indice    = entradas[0]
+    entry_ganancia  = entradas[6]
     indice = _convertir_a_mayusculas(entry_indice.get().strip())
     if not indice:
         messagebox.showerror("Error", "El campo de índice no puede estar vacío.")
@@ -110,7 +122,7 @@ def sumar_ganancia(entry_indice, entry_precio, entry_dividendo, entry_tipo, entr
     ganancia_actual = "se va a reemplazar"
     try:
         ganancia_actual = float(entry_ganancia.get().strip())
-        mi_ganancia = float(indices[indice][4])
+        mi_ganancia = float(indices[indice][5])
     except ValueError:
         print("La cadena no se puede convertir a float.")
         return
@@ -118,18 +130,15 @@ def sumar_ganancia(entry_indice, entry_precio, entry_dividendo, entry_tipo, entr
     # Actualizar el valor en el Entry
     entry_ganancia.delete(0, tk.END)  # Borra el contenido actual
     entry_ganancia.insert(0, str(ganancia_actual))  # Inserta el nuevo valor
-    agregar_indice(entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia, tree)
+    agregar_indice(entradas, tree)
 
-def siguiente_entry(current_entry, entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia):
-    # Lista de los campos de entrada en el orden en que deben recibir el foco
-    entries = [entry_indice, entry_precio, entry_dividendo, entry_tipo, entry_rendimiento, entry_ganancia]
-    
+def siguiente_entry(current_entry, entradas):    
     # Obtener el índice del campo de entrada actual
     try:
-        current_index = entries.index(current_entry)
+        current_index = entradas.index(current_entry)
         # Mover el foco al siguiente campo, si existe
-        next_index = (current_index + 1) % len(entries)  # Cicla al primer campo si se alcanza el último
-        entries[next_index].focus_set()
+        next_index = (current_index + 1) % len(entradas)  # Cicla al primer campo si se alcanza el último
+        entradas[next_index].focus_set()
     except ValueError:
         pass
 
