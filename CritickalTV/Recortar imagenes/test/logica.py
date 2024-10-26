@@ -49,8 +49,8 @@ def seleccionar_imagen_entrada(variables, mostrar_previsualizacion, slider_x, sl
         with Image.open(imagen_entrada_var.get()) as img:
             # Obtener el ancho de la imagen y actualizar el slider
             ancho_img, alto_img = img.size  # Obtener el ancho y alto de la imagen original
-            slider_x.config(to=ancho_img- 1)  # Configurar el máximo del slider X
-            slider_y.config(to=alto_img - int(alto_var.get()))    # Configurar el máximo del slider Y
+            slider_x.config(to=ancho_img - 1)  # Configurar el máximo del slider X
+            slider_y.config(to=alto_img - int(alto_var.get()))  # Configurar el máximo del slider Y
         mostrar_previsualizacion(archivo)
 
 def mostrar_previsualizacion(archivo, canvas):
@@ -129,3 +129,4 @@ def iniciar_recorte(variables):
     recorte = (ancho, alto)
     coordenadas_inicio = (inicio_x, inicio_y)
     recortar_imagenes(variables)  # Pasa el arreglo de variables a la función recortar_imagenes
+
