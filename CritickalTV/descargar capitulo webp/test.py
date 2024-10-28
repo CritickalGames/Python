@@ -32,12 +32,14 @@ def seleccionar_carpeta():
 def ejecutar_descarga():
     if ruta_destino_global:
         url_base = url_entry.get()
-        numero_inicial_str = (url_base.split('.')[-2][-3:])
-        numero_inicial = int(url_base.split('.')[-2][-3:])
-        numero_final = int(numero_final_entry.get())
+        numero_inicial_str = (url_base.split('/')[-1])
+        numero_inicial_str = (numero_inicial_str.split('.')[0])
         print(f"Numero inicial: {numero_inicial_str}")
+        numero_inicial = int(numero_inicial_str)
+        formato = len(numero_inicial_str)
+        numero_final = int(numero_final_entry.get())
         for numero in range(numero_inicial, numero_final + 1):
-            url = url_base.replace(str(numero_inicial_str), str(numero).zfill(3))
+            url = url_base.replace(f"/{numero_inicial_str}.", f"/{str(numero).zfill(formato)}.")
             descargar_imagen(url, ruta_destino_global)
         mostrar_ventana_emergente("Fin de la busqueda")
         
