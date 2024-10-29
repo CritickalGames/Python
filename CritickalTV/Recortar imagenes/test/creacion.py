@@ -60,9 +60,8 @@ def crear_elementos(ventana):
     def vincular_actualizacion_write(var):
         var.trace_add("write", lambda *args: actualizar_previsualizacion(None, variables, canvas))
 
-    def vincular_actualizacion_ButtonRelease(var):
-        var.bind("<ButtonRelease-1>", lambda event: actualizar_previsualizacion(event, variables, canvas))
-    
+    def vincular_actualizacion_ButtonRelease(var, evento = "ButtonRelease-1"):
+        var.bind(f"<{evento}>", lambda event: actualizar_previsualizacion(event, variables, canvas))
     
     # Widgets
     
@@ -77,7 +76,8 @@ def crear_elementos(ventana):
             Lx=10,Ly=5,\
             Ex=10,Ey=5,\
                 width=40)
-        tk.Button(inner_frame, text="Buscar", command=lambda: seleccionar_imagen_entrada(variables, lambda archivo: mostrar_previsualizacion(archivo, canvas), slider_x, slider_y)).grid(row=0, column=2, padx=10, pady=5)
+        boton_imagen = tk.Button(inner_frame, text="Buscar", command=lambda: seleccionar_imagen_entrada(ventana, variables, canvas, slider_x, slider_y))
+        boton_imagen.grid(row=0, column=2, padx=10, pady=5)
 
         # Seleccionar carpeta de salida
         inner_frame= _inner_frame(ventana, frame_args={"bg":"lightblue"}, padx=pad_inner_frame, pady=5, sticky="w")
@@ -107,7 +107,7 @@ def crear_elementos(ventana):
 
         # Slider para coordenada X de inicio
         inner_frame= _inner_frame(ventana, frame_args={"bg":"lightblue"}, padx=pad_inner_frame, pady=5, sticky="w")
-        _label_y_entry(inner_frame, inicio_x_var, nombre="Coordenada X de inicio:",\
+        entry_x=_label_y_entry(inner_frame, inicio_x_var, nombre="Coordenada X de inicio:",\
             L_row=4, L_col=0,\
             E_row=4, E_col=1,\
             Lx=10,Ly=5,\
@@ -118,7 +118,7 @@ def crear_elementos(ventana):
 
         # Slider para coordenada Y de inicio
         inner_frame = _inner_frame(ventana, frame_args={"bg": "lightblue"}, padx=pad_inner_frame, pady=5, sticky="w")
-        _label_y_entry(inner_frame, inicio_y_var, nombre="Coordenada Y de inicio:",
+        entry_y=_label_y_entry(inner_frame, inicio_y_var, nombre="Coordenada Y de inicio:",
                         L_row=0, L_col=0,
                         E_row=0, E_col=1,
                         Lx=10, Ly=5,
@@ -178,12 +178,12 @@ def crear_elementos(ventana):
         # Actualizar previsualización automáticamente cuando se cambien los valores de las entradas
         vincular_actualizacion_write(variables[2])  # ancho_var
         vincular_actualizacion_write(variables[3])  # alto_var
-        vincular_actualizacion_write(variables[4])  # inicio_x_var
-        vincular_actualizacion_write(variables[5])  # inicio_y_var
+        #vincular_actualizacion_write(variables[4])  # inicio_x_var
+        #vincular_actualizacion_write(variables[5])  # inicio_y_var
 
         # Actualizar al precionar
-        vincular_actualizacion_ButtonRelease(slider_x)
-        vincular_actualizacion_ButtonRelease(slider_y)
+        vincular_actualizacion_ButtonRelease(slider_x, "Motion")
+        vincular_actualizacion_ButtonRelease(slider_y, "Motion")
         vincular_actualizacion_ButtonRelease(boton_mas)
         vincular_actualizacion_ButtonRelease(boton_menos)
     
