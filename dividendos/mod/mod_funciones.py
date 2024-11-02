@@ -151,9 +151,9 @@ def calcular_ganancia_potencial(entry_ganancia_potencial, tree):
         
     def _cargar(values,dividendo_anual_total,dividendo_por_pago,tree,item):
         # Actualizar la columna "Potencial Ganancia" y la columna adicional en el Treeview
-        values[6] = str(dividendo_anual_total)
-        if len(values) > 7:
-            values[7] = str(dividendo_por_pago)
+        values[7] = str(dividendo_anual_total)
+        if len(values) > 8:
+            values[8] = str(dividendo_por_pago)
         else:
             values.append(str(dividendo_por_pago))
         tree.item(item, values=tuple(values))

@@ -7,6 +7,8 @@ from logica import (
     iniciar_recorte,
     actualizar_previsualizacion)
 import time
+import threading
+
 
 def _inner_frame(frame, frame_args=None, **grid_kwargs):
     # Configuración predeterminada para frame_kwargs y grid_kwargs
@@ -63,7 +65,6 @@ def crear_elementos(ventana):
     def vincular_actualizacion_ButtonRelease(var):
         var.bind("<ButtonRelease-1>", lambda event: actualizar_previsualizacion(event, variables, canvas))
     
-    
     # Widgets
     
     def _inner_frame1(ventana_original, canvas):
@@ -107,7 +108,7 @@ def crear_elementos(ventana):
 
         # Slider para coordenada X de inicio
         inner_frame= _inner_frame(ventana, frame_args={"bg":"lightblue"}, padx=pad_inner_frame, pady=5, sticky="w")
-        _label_y_entry(inner_frame, inicio_x_var, nombre="Coordenada X de inicio:",\
+        entry_x=_label_y_entry(inner_frame, inicio_x_var, nombre="Coordenada X de inicio:",\
             L_row=4, L_col=0,\
             E_row=4, E_col=1,\
             Lx=10,Ly=5,\
@@ -118,7 +119,7 @@ def crear_elementos(ventana):
 
         # Slider para coordenada Y de inicio
         inner_frame = _inner_frame(ventana, frame_args={"bg": "lightblue"}, padx=pad_inner_frame, pady=5, sticky="w")
-        _label_y_entry(inner_frame, inicio_y_var, nombre="Coordenada Y de inicio:",
+        entry_y = _label_y_entry(inner_frame, inicio_y_var, nombre="Coordenada Y de inicio:",
                         L_row=0, L_col=0,
                         E_row=0, E_col=1,
                         Lx=10, Ly=5,
@@ -128,29 +129,12 @@ def crear_elementos(ventana):
         slider_y.grid(row=0, column=2, padx=5, pady=5, sticky="w")
 
         # Botón "+"
-        boton_mas = tk.Button(inner_frame, text="+", command=lambda: actualizar_valores(1))
+        boton_mas = tk.Button(inner_frame, text="+", command=lambda: actualizar_nombre(1))
         boton_mas.grid(row=0, column=3, padx=5, pady=5)
 
         # Botón "-"
-        boton_menos = tk.Button(inner_frame, text="-", command=lambda: actualizar_valores(-1))
+        boton_menos = tk.Button(inner_frame, text="-", command=lambda: actualizar_nombre(-1))
         boton_menos.grid(row=0, column=4, padx=5, pady=5)
-
-        def actualizar_valores(signo):
-            # Obtener el valor actual de inicio_y_var y alto_var
-            current_value = int(inicio_y_var.get())
-            alto_value = int(alto_var.get())
-            max_value = slider_y['to']  # El valor máximo configurado en el slider
-
-            # Actualizar inicio_y_var
-            nuevo_valor = current_value + (alto_value * signo)
-            if slider_y.get() >= max_value:
-                return
-            inicio_y_var.set(max(0, max(0, nuevo_valor)))  # Limitar entre 0 y Máximo
-
-            # Actualizar nombre_archivo_var
-            nuevo_numero = int(nombre_archivo_var.get()) + signo
-            nombre_archivo_var.set(max(0, nuevo_numero))  # Limitar a valores no negativos
-            slider_y.set(nuevo_valor)
 
         # Formato de salida
         inner_frame= _inner_frame(ventana, frame_args={"bg":"lightblue"}, padx=pad_inner_frame, pady=5, sticky="w")
@@ -186,7 +170,38 @@ def crear_elementos(ventana):
         vincular_actualizacion_ButtonRelease(slider_y)
         vincular_actualizacion_ButtonRelease(boton_mas)
         vincular_actualizacion_ButtonRelease(boton_menos)
-    
+
+        # Evento por teclado
+        entry_y.bind("<Up>", lambda event: actualizar_valores_en_hilo(+1))
+        entry_y.bind("<Down>", lambda event: actualizar_valores_en_hilo(-1))
+
+
+        # funciones creadas acá
+        def actualizar_valores_en_hilo(signo):
+            threading.Thread(target=actualizar_valores, args=(signo,)).start()
+        def actualizar_valores(signo, alto_value = 10):
+            # Obtener el valor actual de inicio_y_var y alto_var
+            current_value = int(inicio_y_var.get())
+            max_value = slider_y['to']  # El valor máximo configurado en el slider
+
+            # Actualizar inicio_y_var
+            nuevo_valor = current_value + (alto_value * signo)
+            if slider_y.get() >= max_value and signo >0:
+                return
+            inicio_y_var.set(max(0, max(0, nuevo_valor)))  # Limitar entre 0 y Máximo
+            actualizar_slider_y(nuevo_valor)
+        
+        def actualizar_slider_y(valor):
+            slider_y.set(valor)
+
+        def actualizar_nombre(signo):
+            actualizar_valores(signo, int(alto_var.get()))
+            # Actualizar nombre_archivo_var
+            nuevo_numero = int(nombre_archivo_var.get()) + signo
+            nombre_archivo_var.set(max(0, nuevo_numero))  # Limitar a valores no negativos
+            slider_y.set(nuevo_valor)
+
+
     def _inner_frame2(ventana_original):
         ventana = _inner_frame(ventana_original, None, row= 0,column=1)
         # Canvas para la previsualización

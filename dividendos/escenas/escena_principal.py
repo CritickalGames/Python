@@ -78,6 +78,12 @@ def main():
     frame = tk.Frame(root, padx=5, pady=5)
     frame.grid(sticky="nsew")
 
+    # Configurar el comportamiento de expansión
+    root.columnconfigure(0, weight=1)  # Permitir que la columna 0 del root se expanda
+    root.rowconfigure(0, weight=1)     # Permitir que la fila 0 del root se expanda
+    frame.columnconfigure(0, weight=1)  # Permitir que la columna 0 del frame se expanda
+    frame.rowconfigure(2, weight=1)     # Permitir que la fila 2 (donde está el Treeview) del frame se expanda
+
     # Input para el índice
     entry_indice = _label_y_entry(frame, "Índice:", 0, 0, 0, 1)
     # Inputs para los datos del índice en una fila
@@ -105,11 +111,9 @@ def main():
 
     # Configurar el sorter
     sorter = TreeviewSorter(tree)
-    
+
     # Inicializa la tabla con los datos del archivo
     actualizar_tabla(tree)
+
     # Inicia la aplicación
     root.mainloop()
-
-if __name__ == "__main__":
-    main()
