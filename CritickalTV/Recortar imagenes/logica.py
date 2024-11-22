@@ -52,6 +52,9 @@ def seleccionar_imagen_entrada(variables, mostrar_previsualizacion, slider_x, sl
             slider_x.config(to=ancho_img - 1)  # Configurar el máximo del slider X
             slider_y.config(to=alto_img - int(alto_var.get()))  # Configurar el máximo del slider Y
         mostrar_previsualizacion(archivo)
+        # Le quita el archivo y luego la carpeta del archivo
+        ruta_sin_archivo = os.path.dirname(os.path.dirname(archivo))
+        variables[1].set(ruta_sin_archivo)# Asigna nueva carpeta
 
 def mostrar_previsualizacion(archivo, canvas):
     img = Image.open(archivo)

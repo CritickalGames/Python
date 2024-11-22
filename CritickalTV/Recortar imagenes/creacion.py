@@ -44,7 +44,7 @@ def crear_elementos(ventana):
     inicio_x_var = tk.StringVar(value="0")  # Coordenada X por defecto
     inicio_y_var = tk.StringVar(value="0")  # Coordenada Y por defecto
     formato_var = tk.StringVar(value="jpg")  # Valor por defecto
-    nombre_archivo_var = tk.StringVar(value="0") # Valor por defecto
+    nombre_archivo_var = tk.StringVar(value="1") # Valor por defecto
 
 
     # Array de variables
@@ -83,8 +83,17 @@ def crear_elementos(ventana):
             Lx=10,Ly=5,\
             Ex=10,Ey=5,\
                 width=40)
-        tk.Button(inner_frame, text="Buscar", command=lambda: seleccionar_imagen_entrada(variables, lambda archivo: mostrar_previsualizacion(archivo, canvas), slider_x, slider_y)).grid(row=0, column=2, padx=10, pady=5)
-
+        tk.Button(inner_frame, text="Buscar",
+            command=lambda: 
+                [
+                    seleccionar_imagen_entrada(variables, 
+                                            lambda archivo: mostrar_previsualizacion(archivo, canvas),
+                                            slider_x, slider_y),
+                    inicio_x_var.set("0"),
+                    inicio_y_var.set("0"),
+                    nombre_archivo_var.set("1"),
+                    slider_y.set(0)
+                ]).grid(row=0, column=2, padx=10, pady=5)
         # Seleccionar carpeta de salida
         inner_frame= _inner_frame(ventana, frame_args={"bg":"lightblue"}, padx=pad_inner_frame, pady=5, sticky="w")
         _label_y_entry(inner_frame, carpeta_salida_var, nombre="Seleccionar carpeta de salida:",\
@@ -135,11 +144,11 @@ def crear_elementos(ventana):
 
         # Botón "+"
         boton_mas = tk.Button(inner_frame, text="+", command=lambda: actualizar_nombre(1))
-        boton_mas.grid(row=0, column=3, padx=5, pady=5)
+        boton_mas.grid(row=0, column=4, padx=5, pady=5)
 
         # Botón "-"
         boton_menos = tk.Button(inner_frame, text="-", command=lambda: actualizar_nombre(-1))
-        boton_menos.grid(row=0, column=4, padx=5, pady=5)
+        boton_menos.grid(row=0, column=3, padx=5, pady=5)
 
         # Formato de salida
         inner_frame= _inner_frame(ventana, frame_args={"bg":"lightblue"}, padx=pad_inner_frame, pady=5, sticky="w")
