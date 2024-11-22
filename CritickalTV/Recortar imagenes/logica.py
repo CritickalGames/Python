@@ -130,3 +130,16 @@ def iniciar_recorte(variables):
     coordenadas_inicio = (inicio_x, inicio_y)
     recortar_imagenes(variables)  # Pasa el arreglo de variables a la función recortar_imagenes
 
+def actualizar_valores(variables, signo, slider_y, alto_value = 10):
+    inicio_y_var = (variables[5])
+    # Obtener el valor actual de inicio_y_var y alto_var
+    current_value = int(inicio_y_var.get())
+    max_value = slider_y['to']  # El valor máximo configurado en el slider
+
+    # Actualizar inicio_y_var
+    nuevo_valor = current_value + (alto_value * signo)
+    if slider_y.get() >= max_value and signo >0:
+        return
+    inicio_y_var.set(max(0, max(0, nuevo_valor)))  # Limitar entre 0 y Máximo
+    slider_y.set(nuevo_valor)
+    return nuevo_valor

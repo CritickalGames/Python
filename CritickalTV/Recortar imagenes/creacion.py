@@ -5,7 +5,8 @@ from logica import (
     mostrar_previsualizacion, 
     seleccionar_carpeta_salida, 
     iniciar_recorte,
-    actualizar_previsualizacion)
+    actualizar_previsualizacion,
+    actualizar_valores)
 import time
 import threading
 
@@ -64,6 +65,10 @@ def crear_elementos(ventana):
 
     def vincular_actualizacion_ButtonRelease(var):
         var.bind("<ButtonRelease-1>", lambda event: actualizar_previsualizacion(event, variables, canvas))
+    
+    # Funciones
+    def actualizar_valores_en_hilo(signo, slider, alto=10):
+        threading.Thread(target=actualizar_valores, args=(variables, signo, slider, alto), daemon=True).start()
     
     # Widgets
     
@@ -172,34 +177,18 @@ def crear_elementos(ventana):
         vincular_actualizacion_ButtonRelease(boton_menos)
 
         # Evento por teclado
-        entry_y.bind("<Up>", lambda event: actualizar_valores_en_hilo(+1))
-        entry_y.bind("<Down>", lambda event: actualizar_valores_en_hilo(-1))
+        entry_y.bind("<Up>", lambda event: actualizar_valores_en_hilo(+1, slider_y))
+        entry_y.bind("<Down>", lambda event: actualizar_valores_en_hilo(-1, slider_y))
 
 
         # funciones creadas acá
-        def actualizar_valores_en_hilo(signo):
-            threading.Thread(target=actualizar_valores, args=(signo,)).start()
-        def actualizar_valores(signo, alto_value = 10):
-            # Obtener el valor actual de inicio_y_var y alto_var
-            current_value = int(inicio_y_var.get())
-            max_value = slider_y['to']  # El valor máximo configurado en el slider
-
-            # Actualizar inicio_y_var
-            nuevo_valor = current_value + (alto_value * signo)
-            if slider_y.get() >= max_value and signo >0:
-                return
-            inicio_y_var.set(max(0, max(0, nuevo_valor)))  # Limitar entre 0 y Máximo
-            actualizar_slider_y(nuevo_valor)
-        
-        def actualizar_slider_y(valor):
-            slider_y.set(valor)
-
         def actualizar_nombre(signo):
-            actualizar_valores(signo, int(alto_var.get()))
+            nuevo_valor=actualizar_valores(variables, signo, slider_y, int(alto_var.get()))
             # Actualizar nombre_archivo_var
             nuevo_numero = int(nombre_archivo_var.get()) + signo
             nombre_archivo_var.set(max(0, nuevo_numero))  # Limitar a valores no negativos
             slider_y.set(nuevo_valor)
+        return slider_y
 
 
     def _inner_frame2(ventana_original):
@@ -218,5 +207,5 @@ def crear_elementos(ventana):
         return canvas
 
     canvas=_inner_frame2(ventana)
-    _inner_frame1(ventana, canvas)
-    
+    slider_y=_inner_frame1(ventana, canvas)
+    canvas.bind("<MouseWheel>", lambda event: actualizar_valores(variables, 1 if event.delta < 0 else -1, slider_y))

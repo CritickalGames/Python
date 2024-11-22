@@ -20,6 +20,7 @@ def descargar_imagen(url, ruta_destino):
         print(f"Imagen guardada como {ruta_completa}")
     except requests.exceptions.RequestException as e:
         mostrar_ventana_emergente(f"Error al descargar la imagen: {e}")
+        return True
 
 def seleccionar_carpeta():
     global ruta_destino_global
@@ -40,7 +41,9 @@ def ejecutar_descarga():
         numero_final = int(numero_final_entry.get())
         for numero in range(numero_inicial, numero_final + 1):
             url = url_base.replace(f"/{numero_inicial_str}.", f"/{str(numero).zfill(formato)}.")
-            descargar_imagen(url, ruta_destino_global)
+            salir= descargar_imagen(url, ruta_destino_global)
+            if salir:
+                break
         mostrar_ventana_emergente("Fin de la busqueda")
         
 
