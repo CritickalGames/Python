@@ -188,8 +188,8 @@ def crear_elementos(ventana):
         vincular_actualizacion_ButtonRelease(boton_menos)
 
         # Evento por teclado
-        entry_y.bind("<Up>", lambda event: actualizar_valores_en_hilo(+1, slider_y))
-        entry_y.bind("<Down>", lambda event: actualizar_valores_en_hilo(-1, slider_y))
+        entry_y.bind("<Up>", lambda event: actualizar_valores_en_hilo(+1, slider_y, 100))
+        entry_y.bind("<Down>", lambda event: actualizar_valores_en_hilo(-1, slider_y, 100))
 
 
         # funciones creadas acá
