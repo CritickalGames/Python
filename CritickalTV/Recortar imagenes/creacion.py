@@ -45,6 +45,7 @@ def crear_elementos(ventana):
     inicio_y_var = tk.StringVar(value="0")  # Coordenada Y por defecto
     formato_var = tk.StringVar(value="jpg")  # Valor por defecto
     nombre_archivo_var = tk.StringVar(value="1") # Valor por defecto
+    nombre_de_ultimo_archivo_var = tk.StringVar(value="Nombre del archivo") # Valor por defecto
 
 
     # Array de variables
@@ -56,7 +57,8 @@ def crear_elementos(ventana):
         inicio_x_var,       # 4
         inicio_y_var,       # 5
         nombre_archivo_var, # 6
-        formato_var         # 7
+        formato_var,        # 7
+        nombre_de_ultimo_archivo_var # 8
         ]
 
     # Asigar comportamiento a eventos
@@ -208,11 +210,8 @@ def crear_elementos(ventana):
 
         tk.Button(ventana, text="Iniciar recorte", command=lambda: iniciar_recorte(variables)).grid(row=8, column=0, padx=5, pady=10)
         
-        entry_nombre=_label_y_entry(ventana, None, "Archivo:", L_row=9, L_col=0, E_row=9, E_col=0)
-        entry_nombre.insert(0, "Nombre del archivo")
-
-        
-
+        _label_y_entry(ventana, nombre_de_ultimo_archivo_var, "Archivo:", 
+                       L_row=9, L_col=0, E_row=9, E_col=0)
         return canvas
 
     canvas=_inner_frame2(ventana)

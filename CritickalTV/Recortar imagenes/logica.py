@@ -121,17 +121,13 @@ def iniciar_recorte(variables):
     carpeta_salida = variables[1].get()
     ancho = int(variables[2].get())
     alto = int(variables[3].get())
-    inicio_x = int(variables[4].get())
-    inicio_y = int(variables[5].get())
     formato = variables[7].get()
 
     if not imagen_entrada or not carpeta_salida or not ancho or not alto or not formato:
         messagebox.showwarning("Error", "Por favor completa todos los campos.")
         return
-
-    recorte = (ancho, alto)
-    coordenadas_inicio = (inicio_x, inicio_y)
     recortar_imagenes(variables)  # Pasa el arreglo de variables a la función recortar_imagenes
+    variables[8].set(os.path.basename(carpeta_salida)+"/"+os.path.splitext(os.path.basename(imagen_entrada))[0]+"-"+variables[6].get())
 
 def actualizar_valores(variables, signo, slider_y, alto_value = 10):
     inicio_y_var = (variables[5])
