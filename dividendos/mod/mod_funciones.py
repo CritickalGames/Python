@@ -142,9 +142,9 @@ def siguiente_entry(current_entry, entradas):
     except ValueError:
         pass
 
-def calcular_ganancia_potencial(entry_ganancia_potencial, tree):
+def calcular_ganancia_potencial(entry_invercion_inicial, tree):
     try:
-        ganancia_potencial = float(entry_ganancia_potencial.get().strip())
+        invercion_inicial = float(entry_invercion_inicial.get().strip())
     except ValueError:
         messagebox.showerror("Error", "El valor de ganancia potencial debe ser un número válido.")
         return
@@ -178,7 +178,7 @@ def calcular_ganancia_potencial(entry_ganancia_potencial, tree):
         if indice_precio == 0:
             _cargar(values,0,0,tree,item)
             continue
-        cantidad_acciones = ganancia_potencial / indice_precio
+        cantidad_acciones = invercion_inicial / indice_precio
 
         # Determinar el tipo de pago por acción
         try:

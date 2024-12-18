@@ -5,8 +5,11 @@ from logica import (
     mostrar_previsualizacion, 
     seleccionar_carpeta_salida, 
     iniciar_recorte,
-    actualizar_previsualizacion)
+    actualizar_previsualizacion,
+    actualizar_valores)
 import time
+import threading
+
 
 def _inner_frame(frame, frame_args=None, **grid_kwargs):
     # Configuración predeterminada para frame_kwargs y grid_kwargs
@@ -41,7 +44,8 @@ def crear_elementos(ventana):
     inicio_x_var = tk.StringVar(value="0")  # Coordenada X por defecto
     inicio_y_var = tk.StringVar(value="0")  # Coordenada Y por defecto
     formato_var = tk.StringVar(value="jpg")  # Valor por defecto
-    nombre_archivo_var = tk.StringVar(value="0") # Valor por defecto
+    nombre_archivo_var = tk.StringVar(value="1") # Valor por defecto
+    nombre_de_ultimo_archivo_var = tk.StringVar(value="Nombre del archivo") # Valor por defecto
 
 
     # Array de variables
@@ -53,15 +57,20 @@ def crear_elementos(ventana):
         inicio_x_var,       # 4
         inicio_y_var,       # 5
         nombre_archivo_var, # 6
-        formato_var         # 7
+        formato_var,        # 7
+        nombre_de_ultimo_archivo_var # 8
         ]
 
     # Asigar comportamiento a eventos
     def vincular_actualizacion_write(var):
         var.trace_add("write", lambda *args: actualizar_previsualizacion(None, variables, canvas))
 
-    def vincular_actualizacion_ButtonRelease(var, evento = "ButtonRelease-1"):
-        var.bind(f"<{evento}>", lambda event: actualizar_previsualizacion(event, variables, canvas))
+    def vincular_actualizacion_ButtonRelease(var):
+        var.bind("<ButtonRelease-1>", lambda event: actualizar_previsualizacion(event, variables, canvas))
+    
+    # Funciones
+    def actualizar_valores_en_hilo(signo, slider, alto=10):
+        threading.Thread(target=actualizar_valores, args=(variables, signo, slider, alto), daemon=True).start()
     
     # Widgets
     
@@ -76,9 +85,17 @@ def crear_elementos(ventana):
             Lx=10,Ly=5,\
             Ex=10,Ey=5,\
                 width=40)
-        boton_imagen = tk.Button(inner_frame, text="Buscar", command=lambda: seleccionar_imagen_entrada(ventana, variables, canvas, slider_x, slider_y))
-        boton_imagen.grid(row=0, column=2, padx=10, pady=5)
-
+        tk.Button(inner_frame, text="Buscar",
+            command=lambda: 
+                [
+                    seleccionar_imagen_entrada(variables, 
+                                            lambda archivo: mostrar_previsualizacion(archivo, canvas),
+                                            slider_x, slider_y),
+                    inicio_x_var.set("0"),
+                    inicio_y_var.set("0"),
+                    nombre_archivo_var.set("1"),
+                    slider_y.set(0)
+                ]).grid(row=0, column=2, padx=10, pady=5)
         # Seleccionar carpeta de salida
         inner_frame= _inner_frame(ventana, frame_args={"bg":"lightblue"}, padx=pad_inner_frame, pady=5, sticky="w")
         _label_y_entry(inner_frame, carpeta_salida_var, nombre="Seleccionar carpeta de salida:",\
@@ -118,7 +135,7 @@ def crear_elementos(ventana):
 
         # Slider para coordenada Y de inicio
         inner_frame = _inner_frame(ventana, frame_args={"bg": "lightblue"}, padx=pad_inner_frame, pady=5, sticky="w")
-        entry_y=_label_y_entry(inner_frame, inicio_y_var, nombre="Coordenada Y de inicio:",
+        entry_y = _label_y_entry(inner_frame, inicio_y_var, nombre="Coordenada Y de inicio:",
                         L_row=0, L_col=0,
                         E_row=0, E_col=1,
                         Lx=10, Ly=5,
@@ -128,29 +145,12 @@ def crear_elementos(ventana):
         slider_y.grid(row=0, column=2, padx=5, pady=5, sticky="w")
 
         # Botón "+"
-        boton_mas = tk.Button(inner_frame, text="+", command=lambda: actualizar_valores(1))
-        boton_mas.grid(row=0, column=3, padx=5, pady=5)
+        boton_mas = tk.Button(inner_frame, text="+", command=lambda: actualizar_nombre(1))
+        boton_mas.grid(row=0, column=4, padx=5, pady=5)
 
         # Botón "-"
-        boton_menos = tk.Button(inner_frame, text="-", command=lambda: actualizar_valores(-1))
-        boton_menos.grid(row=0, column=4, padx=5, pady=5)
-
-        def actualizar_valores(signo):
-            # Obtener el valor actual de inicio_y_var y alto_var
-            current_value = int(inicio_y_var.get())
-            alto_value = int(alto_var.get())
-            max_value = slider_y['to']  # El valor máximo configurado en el slider
-
-            # Actualizar inicio_y_var
-            nuevo_valor = current_value + (alto_value * signo)
-            if slider_y.get() >= max_value:
-                return
-            inicio_y_var.set(max(0, max(0, nuevo_valor)))  # Limitar entre 0 y Máximo
-
-            # Actualizar nombre_archivo_var
-            nuevo_numero = int(nombre_archivo_var.get()) + signo
-            nombre_archivo_var.set(max(0, nuevo_numero))  # Limitar a valores no negativos
-            slider_y.set(nuevo_valor)
+        boton_menos = tk.Button(inner_frame, text="-", command=lambda: actualizar_nombre(-1))
+        boton_menos.grid(row=0, column=3, padx=5, pady=5)
 
         # Formato de salida
         inner_frame= _inner_frame(ventana, frame_args={"bg":"lightblue"}, padx=pad_inner_frame, pady=5, sticky="w")
@@ -178,15 +178,30 @@ def crear_elementos(ventana):
         # Actualizar previsualización automáticamente cuando se cambien los valores de las entradas
         vincular_actualizacion_write(variables[2])  # ancho_var
         vincular_actualizacion_write(variables[3])  # alto_var
-        #vincular_actualizacion_write(variables[4])  # inicio_x_var
-        #vincular_actualizacion_write(variables[5])  # inicio_y_var
+        vincular_actualizacion_write(variables[4])  # inicio_x_var
+        vincular_actualizacion_write(variables[5])  # inicio_y_var
 
         # Actualizar al precionar
-        vincular_actualizacion_ButtonRelease(slider_x, "Motion")
-        vincular_actualizacion_ButtonRelease(slider_y, "Motion")
+        vincular_actualizacion_ButtonRelease(slider_x)
+        vincular_actualizacion_ButtonRelease(slider_y)
         vincular_actualizacion_ButtonRelease(boton_mas)
         vincular_actualizacion_ButtonRelease(boton_menos)
-    
+
+        # Evento por teclado
+        entry_y.bind("<Up>", lambda event: actualizar_valores_en_hilo(+1, slider_y, 100))
+        entry_y.bind("<Down>", lambda event: actualizar_valores_en_hilo(-1, slider_y, 100))
+
+
+        # funciones creadas acá
+        def actualizar_nombre(signo):
+            nuevo_valor=actualizar_valores(variables, signo, slider_y, int(alto_var.get()))
+            # Actualizar nombre_archivo_var
+            nuevo_numero = int(nombre_archivo_var.get()) + signo
+            nombre_archivo_var.set(max(0, nuevo_numero))  # Limitar a valores no negativos
+            slider_y.set(nuevo_valor)
+        return slider_y
+
+
     def _inner_frame2(ventana_original):
         ventana = _inner_frame(ventana_original, None, row= 0,column=1)
         # Canvas para la previsualización
@@ -195,13 +210,10 @@ def crear_elementos(ventana):
 
         tk.Button(ventana, text="Iniciar recorte", command=lambda: iniciar_recorte(variables)).grid(row=8, column=0, padx=5, pady=10)
         
-        entry_nombre=_label_y_entry(ventana, None, "Archivo:", L_row=9, L_col=0, E_row=9, E_col=0)
-        entry_nombre.insert(0, "Nombre del archivo")
-
-        
-
+        _label_y_entry(ventana, nombre_de_ultimo_archivo_var, "Archivo:", 
+                       L_row=9, L_col=0, E_row=9, E_col=0)
         return canvas
 
     canvas=_inner_frame2(ventana)
-    _inner_frame1(ventana, canvas)
-    
+    slider_y=_inner_frame1(ventana, canvas)
+    canvas.bind("<MouseWheel>", lambda event: actualizar_valores(variables, 1 if event.delta < 0 else -1, slider_y))
