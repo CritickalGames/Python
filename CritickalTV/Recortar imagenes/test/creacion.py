@@ -169,28 +169,29 @@ def crear_elementos(ventana):
             Ex=10,Ey=5,\
                 validate='key', validatecommand=vcmd)
         
-            # Botones + y -
+        # Botones + y -
         boton_mas = tk.Button(inner_frame, text="-", command=lambda: nombre_archivo_var.set(((int)(nombre_archivo_var.get())-1 if nombre_archivo_var.get() != "0" else (int)(nombre_archivo_var.get()))))
         boton_mas.grid(row=0, column=2, padx=5, pady=5)  # Eliminar último carácter
         boton_menos=tk.Button(inner_frame, text="+", command=lambda: nombre_archivo_var.set((int)(nombre_archivo_var.get())+1))
         boton_menos.grid(row=0, column=3, padx=5, pady=5)  # Agregar "nuevo" como ejemplo
 
-        # Actualizar previsualización automáticamente cuando se cambien los valores de las entradas
-        vincular_actualizacion_write(variables[2])  # ancho_var
-        vincular_actualizacion_write(variables[3])  # alto_var
-        vincular_actualizacion_write(variables[4])  # inicio_x_var
-        vincular_actualizacion_write(variables[5])  # inicio_y_var
+        def vincular_eventos(v_buttonRelease=[], v_write=[]):
+            # Actualizar previsualización automáticamente cuando se cambien los valores de las entradas
+            for var in v_write:
+                vincular_actualizacion_write(var)
 
-        # Actualizar al precionar
-        vincular_actualizacion_ButtonRelease(slider_x)
-        vincular_actualizacion_ButtonRelease(slider_y)
-        vincular_actualizacion_ButtonRelease(boton_mas)
-        vincular_actualizacion_ButtonRelease(boton_menos)
-
+            # Actualizar al precionar
+            for var in v_buttonRelease:
+                vincular_actualizacion_ButtonRelease(var)
+        vincular_eventos(
+            [slider_x, slider_y, boton_mas, boton_menos],
+            # ancho_var # alto_var # inicio_x_var # inicio_y_var
+            [variables[2], variables[3], variables[4], variables[5]]
+        )
+        
         # Evento por teclado
         entry_y.bind("<Up>", lambda event: actualizar_valores_en_hilo(+1, slider_y, 100))
         entry_y.bind("<Down>", lambda event: actualizar_valores_en_hilo(-1, slider_y, 100))
-
 
         # funciones creadas acá
         def actualizar_nombre(signo):
@@ -208,10 +209,13 @@ def crear_elementos(ventana):
         canvas = tk.Canvas(ventana, width=300, height=300, bg="gray")
         canvas.grid(padx=5, pady=5)
 
-        tk.Button(ventana, text="Iniciar recorte", command=lambda: iniciar_recorte(variables)).grid(row=8, column=0, padx=5, pady=10)
+        tk.Button(ventana, text="Iniciar recorte", 
+                  command=lambda: 
+                  iniciar_recorte(variables)).grid(row=9, column=0, padx=0, pady=1)
+        tk.Checkbutton(ventana, text="Palomita de check").grid(row=8, column=0, padx=0, pady=5)
         
         _label_y_entry(ventana, nombre_de_ultimo_archivo_var, "Archivo:", 
-                       L_row=9, L_col=0, E_row=9, E_col=0)
+                       L_row=10, L_col=0, E_row=10, E_col=0)
         return canvas
 
     canvas=_inner_frame2(ventana)
