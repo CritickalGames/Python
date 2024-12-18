@@ -209,10 +209,12 @@ def crear_elementos(ventana):
         canvas = tk.Canvas(ventana, width=300, height=300, bg="gray")
         canvas.grid(padx=5, pady=5)
 
+        multi = tk.BooleanVar()
+        tk.Checkbutton(ventana, text="Multi recorte", variable=multi).grid(row=8, column=0, padx=0, pady=5)
+        
         tk.Button(ventana, text="Iniciar recorte", 
                   command=lambda: 
-                  iniciar_recorte(variables)).grid(row=9, column=0, padx=0, pady=1)
-        tk.Checkbutton(ventana, text="Palomita de check").grid(row=8, column=0, padx=0, pady=5)
+                  iniciar_recorte(variables, multi.get())).grid(row=9, column=0, padx=0, pady=1)
         
         _label_y_entry(ventana, nombre_de_ultimo_archivo_var, "Archivo:", 
                        L_row=10, L_col=0, E_row=10, E_col=0)
