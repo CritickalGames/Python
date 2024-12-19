@@ -204,20 +204,26 @@ def crear_elementos(ventana):
 
 
     def _inner_frame2(ventana_original):
+        pad_inner_frame=0
         ventana = _inner_frame(ventana_original, None, row= 0,column=1)
+        
+        inner_frame= _inner_frame(ventana, frame_args={}, padx=pad_inner_frame, pady=5)
         # Canvas para la previsualización
-        canvas = tk.Canvas(ventana, width=300, height=300, bg="gray")
+        canvas = tk.Canvas(inner_frame, width=300, height=300, bg="gray")
         canvas.grid(padx=5, pady=5)
 
+        inner_frame= _inner_frame(ventana, frame_args={}, padx=pad_inner_frame, pady=5, sticky="w")
         multi = tk.BooleanVar()
-        tk.Checkbutton(ventana, text="Multi recorte", variable=multi).grid(row=8, column=0, padx=0, pady=5)
+        tk.Checkbutton(inner_frame, text="Multi recorte", variable=multi).grid(row=0, column=1, padx=20, pady=5)
         
-        tk.Button(ventana, text="Iniciar recorte", 
+        tk.Button(inner_frame, text="Iniciar recorte", 
                   command=lambda: 
-                  iniciar_recorte(variables, multi.get())).grid(row=9, column=0, padx=0, pady=1)
+                  iniciar_recorte(variables, multi.get())).grid(row=0, column=0, padx=0, pady=1)
         
-        _label_y_entry(ventana, nombre_de_ultimo_archivo_var, "Archivo:", 
-                       L_row=10, L_col=0, E_row=10, E_col=0)
+        inner_frame= _inner_frame(ventana, frame_args={}, padx=pad_inner_frame, pady=5, sticky="w")
+        _label_y_entry(inner_frame, nombre_de_ultimo_archivo_var, "Archivo:", 
+                       L_row=3, L_col=0, E_row=3, E_col=0)
+        
         return canvas
 
     canvas=_inner_frame2(ventana)

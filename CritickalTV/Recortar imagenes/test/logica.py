@@ -29,25 +29,70 @@ def recortar_imagen(inicio_x, inicio_y, recorte_der, recorte_inf, imagen_entrada
         ruta_salida = os.path.join(carpeta_salida, nombre_salida)
         img_recortada.save(ruta_salida)
 
-def recortar_imagenes_multi(ancho, alto, inicio_x, inicio_y, recorte_der, recorte_inf, imagen_entrada, nombre_entrada, formato, carpeta_salida):
-    recortar_imagen(inicio_x, inicio_y, recorte_der, recorte_inf, imagen_entrada, nombre_entrada, formato, carpeta_salida)
+def recortar_imagenes_multi(ancho, alto, inicio_x, inicio_y, recorte_der, recorte_inf, imagen_entrada, nombre_entrada, formato, carpeta_salida, var6):
     with Image.open(imagen_entrada) as img:
+        ancho_img, alto_img = img.size
         retorno = 0 # valor generico para que entre por primera vez
         while retorno is not None:
-            retorno = preparar_imagen(imagen_entrada, ancho, alto, inicio_x, recorte_inf)
+            retorno = preparar_imagen(imagen_entrada, ancho, alto, inicio_x, inicio_y)
             if retorno is None:
                 return
-            recorte_inf_viejo= recorte_inf
             recorte_der, recorte_inf = retorno
 
-            img_recortada = img.crop((inicio_x, recorte_inf_viejo, recorte_der, recorte_inf))
+            img_recortada = img.crop((inicio_x, inicio_y, recorte_der, recorte_inf))
+            inicio_y = recorte_inf
             nombre_archivo = os.path.basename(imagen_entrada)
             nombre_salida = f"{nombre_archivo.split('.')[0]}-{nombre_entrada}.{formato}"
             ruta_salida = os.path.join(carpeta_salida, nombre_salida)
+
+            #!Tengo que hacer que guarde sólo después de aceptar que todas las imagenes están bien
             img_recortada.save(ruta_salida)
+            if recorte_der > ancho_img or recorte_inf+alto > alto_img:
+                var6.set(nombre_entrada)
+                return
             nombre_entrada = str(int(nombre_entrada) + 1)
 
+def iniciar_recorte(variables, multi_recorte = False):
+    imagen_entrada = variables[0].get()
+    carpeta_salida = variables[1].get()
+    ancho = int(variables[2].get())
+    alto = int(variables[3].get())
+    formato = variables[7].get()
 
+    inicio_x = int(variables[4].get())
+    inicio_y = int(variables[5].get())
+    nombre_entrada = variables[6].get()
+
+    if not imagen_entrada or not carpeta_salida or not ancho or not alto or not formato:
+        messagebox.showwarning("Error", "Por favor completa todos los campos.")
+        return
+    if not os.path.exists(carpeta_salida):
+        os.makedirs(carpeta_salida)
+
+    resultado = preparar_imagen(imagen_entrada, ancho, alto, inicio_x, inicio_y)
+
+    if resultado is None:
+        return
+    
+    recorte_der, recorte_inf = resultado
+
+    if multi_recorte:
+        recortar_imagenes_multi(
+            ancho, alto, inicio_x, inicio_y, recorte_der, recorte_inf, 
+            imagen_entrada, nombre_entrada, formato, carpeta_salida,
+            variables[6])
+    else:
+        # Pasa el arreglo de variables a la función recortar_imagenes
+        recortar_imagen(inicio_x, inicio_y, recorte_der, recorte_inf, imagen_entrada, nombre_entrada, formato, carpeta_salida) 
+    
+    variables[8].set(os.path.basename(carpeta_salida)+"/"+
+                    os.path.splitext(
+                        os.path.basename(imagen_entrada))[0]+"-"+variables[6].get()
+                        )
+    messagebox.showinfo("Finalizado", "Imagen recortada y guardada con éxito.")
+
+    
+    
 def seleccionar_imagen_entrada(variables, mostrar_previsualizacion, slider_x, slider_y):
     imagen_entrada_var = variables[0]
     ancho_var = variables[2]
@@ -125,43 +170,6 @@ def actualizar_previsualizacion(event=None, variables=None, canvas=None):
         
         # Mantener una referencia a la imagen para evitar que sea recolectada por el GC
         canvas.image = img_tk  
-
-def iniciar_recorte(variables, multi_recorte = False):
-    imagen_entrada = variables[0].get()
-    carpeta_salida = variables[1].get()
-    ancho = int(variables[2].get())
-    alto = int(variables[3].get())
-    formato = variables[7].get()
-
-    inicio_x = int(variables[4].get())
-    inicio_y = int(variables[5].get())
-    nombre_entrada = variables[6].get()
-
-    if not imagen_entrada or not carpeta_salida or not ancho or not alto or not formato:
-        messagebox.showwarning("Error", "Por favor completa todos los campos.")
-        return
-    if not os.path.exists(carpeta_salida):
-        os.makedirs(carpeta_salida)
-
-    resultado = preparar_imagen(imagen_entrada, ancho, alto, inicio_x, inicio_y)
-
-    if resultado is None:
-        return
-    
-    recorte_der, recorte_inf = resultado
-
-    if multi_recorte:
-        recortar_imagenes_multi(ancho, alto, inicio_x, inicio_y, recorte_der, recorte_inf, imagen_entrada, nombre_entrada, formato, carpeta_salida)
-    else:
-        # Pasa el arreglo de variables a la función recortar_imagenes
-        recortar_imagen(inicio_x, inicio_y, recorte_der, recorte_inf, imagen_entrada, nombre_entrada, formato, carpeta_salida) 
-    
-    messagebox.showinfo("Finalizado", "Imagen recortada y guardada con éxito.")
-
-    variables[8].set(os.path.basename(carpeta_salida)+"/"+
-                     os.path.splitext(
-                         os.path.basename(imagen_entrada))[0]+"-"+variables[6].get()
-                         )
 
 def actualizar_valores(variables, signo, slider_y, alto_value = 10):
     inicio_y_var = (variables[5])
