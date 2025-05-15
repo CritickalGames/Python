@@ -1,0 +1,6 @@
+node_modules
+# Archivos grandes innecesarios
+.venv/
+*.db
+*.dll
+*.lib

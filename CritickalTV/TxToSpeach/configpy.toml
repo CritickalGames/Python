@@ -1,0 +1,3 @@
+[environment]
+PYTHONPATH = "D:/docs/A_repo/Python/tts"
+MODULES = ["scripts"]
