@@ -1,0 +1,19 @@
+[project]
+name = "tts_project"
+version = "0.1.0"
+description = "Sistema modular de síntesis de voz con múltiples backends"
+authors = ["Zeta <zeta@example.com>"]
+requires-python = ">=3.10"
+
+[tool.pdm.dev-dependencies]
+pytest = "*"
+
+[tool.tts]
+motor = "pyttsx3"
+
+[tool.pdm.dependencies]
+pyttsx3 = ">=2.90"
+requests = ">=2.31.0"
+
+[tool.tts.motores]
+pyttsx3 = "tts.backends.pyttsx3:MotorPyttsx3"
