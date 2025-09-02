@@ -14,14 +14,15 @@ def leer_configuracion():
 
 def cargar_motor():
     config = leer_configuracion()
-    nombre = config.get("motor", "gtts")
+    nombre = config.get("motor")
     motores = config.get("motores", {})
+    subconfig = config.get("config", {}).get(nombre, {})
 
     if nombre not in motores:
         raise ValueError(f"❌ Motor '{nombre}' no está definido en [tool.tts.motores]")
 
     ruta = motores[nombre]
     modulo, clase = ruta.split(":")
-    mod = importlib.import_module(f"src.{modulo}")
+    mod = importlib.import_module(modulo)
     cls = getattr(mod, clase)
-    return cls(config)
+    return cls(subconfig)
